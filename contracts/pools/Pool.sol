@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity 0.8.19;
+pragma solidity ^0.8.20;
 import {CurrencyLibrary} from "../libraries/CurrencyLibrary.sol";
 import {Presale, Vesting, Contributor} from "../interfaces/IPresale.sol";
 import {IRouterV2} from "../interfaces/IRouterV2.sol";
 import {ILock} from "../lock/interfaces/ILock.sol";
 import {VestingLib} from "../libraries/VestingLib.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract Pool is ReentrancyGuard {
     using CurrencyLibrary for address;

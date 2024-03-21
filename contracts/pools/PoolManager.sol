@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity 0.8.19;
+pragma solidity ^0.8.20;
 
 import {SignatureChecker} from "../utils/SignatureChecker.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Presale, Vesting, IPool} from "../interfaces/IPool.sol";
 import {IUniswapV2Pair} from "../interfaces/IUniswapV2Pair.sol";
 import {CurrencyLibrary} from "../libraries/CurrencyLibrary.sol";
