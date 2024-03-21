@@ -8,7 +8,7 @@ import {Presale, Vesting, IPool} from "../interfaces/IPool.sol";
 import {IUniswapV2Pair} from "../interfaces/IUniswapV2Pair.sol";
 import {CurrencyLibrary} from "../libraries/CurrencyLibrary.sol";
 
-contract PoolManager is SignatureChecker, ReentrancyGuard {
+abstract contract PoolManager is SignatureChecker, ReentrancyGuard {
     using CurrencyLibrary for address;
 
     address private _poolAddress;

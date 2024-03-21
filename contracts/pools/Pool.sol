@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 import {CurrencyLibrary} from "../libraries/CurrencyLibrary.sol";
 import {Presale, Vesting, Contributor} from "../interfaces/IPresale.sol";
 import {IRouterV2} from "../interfaces/IRouterV2.sol";
-import {ILock} from "../lock/interfaces/ILock.sol";
+import {IPadLock} from "../lock/interfaces/IPadLock.sol";
 import {VestingLib} from "../libraries/VestingLib.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
@@ -25,7 +25,7 @@ contract Pool is ReentrancyGuard {
     address private _factory;
     address private _token;
 
-    ILock private immutable _lock;
+    IPadLock private immutable _lock;
     Presale private _presale;
     Stats private _presaleStats;
     Vesting private _vesting;
@@ -64,7 +64,7 @@ contract Pool is ReentrancyGuard {
     }
 
     constructor(address lock) {
-        _lock = ILock(lock);
+        _lock = IPadLock(lock);
     }
 
     receive() external payable {
@@ -355,7 +355,7 @@ contract Pool is ReentrancyGuard {
         address weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
         address lpToken = _pairFor(token, weth);
         uint256 lpTokenBalance = lpToken.balanceOf(address(this));
-        ILock lockAddress = _lock;
+        IPadLock lockAddress = _lock;
         lpToken.safeApprove(address(lockAddress), lpTokenBalance);
         _lock.lockTokens(lpToken, msg.sender, lpTokenBalance, lockTime, true);
     }

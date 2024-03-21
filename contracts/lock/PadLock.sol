@@ -5,7 +5,7 @@ import {CurrencyLibrary} from "../libraries/CurrencyLibrary.sol";
 import {LPLib} from "../libraries/LPLib.sol";
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract Lock is Ownable2Step {
+abstract contract PadLock is Ownable2Step {
     using CurrencyLibrary for address;
     using LPLib for address;
 

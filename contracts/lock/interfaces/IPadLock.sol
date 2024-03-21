@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.20;
 
-interface ILock {
+interface IPadLock {
     function lockTokens(
         address _currency,
         address _owner,
