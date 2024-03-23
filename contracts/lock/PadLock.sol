@@ -4,11 +4,17 @@ pragma solidity ^0.8.20;
 import {CurrencyLibrary} from "../libraries/CurrencyLibrary.sol";
 import {LPLib} from "../libraries/LPLib.sol";
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-abstract contract PadLock is Ownable2Step {
+
+
+contract PadLock is Ownable2Step {
     using CurrencyLibrary for address;
     using LPLib for address;
 
+    constructor() Ownable(msg.sender) {
+
+  }
     struct LockInfo {
         address currency;
         address owner;

@@ -8,7 +8,10 @@ import {Presale, Vesting, IPool} from "../interfaces/IPool.sol";
 import {IUniswapV2Pair} from "../interfaces/IUniswapV2Pair.sol";
 import {CurrencyLibrary} from "../libraries/CurrencyLibrary.sol";
 
-abstract contract PoolManager is SignatureChecker, ReentrancyGuard {
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+
+
+ contract PoolManager is SignatureChecker, ReentrancyGuard {
     using CurrencyLibrary for address;
 
     address private _poolAddress;
@@ -26,7 +29,7 @@ abstract contract PoolManager is SignatureChecker, ReentrancyGuard {
     constructor(
         address _signer,
         address poolAddress
-    ) SignatureChecker(_signer) {
+    ) Ownable(msg.sender) SignatureChecker(_signer) {
         _poolAddress = poolAddress;
     }
 
