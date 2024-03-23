@@ -2,8 +2,10 @@ import type { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers"
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "hardhat";
 
+
+
 import type { Contracts, Signers } from "../shared/types";
-import { testLock } from "./lock/Lock";
+import { Pool } from "./pool";
 
 describe("Unit tests", function () {
   before(async function () {
@@ -16,6 +18,5 @@ describe("Unit tests", function () {
 
     this.loadFixture = loadFixture;
   });
-
-  testLock();
+  Pool();
 });
