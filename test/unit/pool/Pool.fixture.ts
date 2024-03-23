@@ -9,11 +9,10 @@ import type { Pool__factory } from "../../../types/factories/contracts/pools/Poo
 
 export async function poolFixture(): Promise<{
   pool: Pool;
+  padLock: PadLock;
   unlockTime: number;
   lockedAmount: number;
 }> {
-  //  Lock = await LockFactory.deploy();
-  //await Lock.deployed();
   const signers = await ethers.getSigners();
   const deployer: SignerWithAddress = signers[0];
 
@@ -22,8 +21,8 @@ export async function poolFixture(): Promise<{
     "PadLock"
   )) as PadLock__factory;
 
-  const PadLock: PadLock = (await PadLockFactory.connect(deployer).deploy()) as PadLock;
-  await PadLock.deployed();
+  const padLock: PadLock = (await PadLockFactory.connect(deployer).deploy()) as PadLock;
+  await padLock.waitForDeployment();
 
   const ONE_YEAR_IN_SECS = time.duration.years(1);
   const ONE_GWEI = 1_000_000_000;
@@ -32,10 +31,10 @@ export async function poolFixture(): Promise<{
   const unlockTime = (await time.latest()) + ONE_YEAR_IN_SECS;
 
   type DeployArgs = Parameters<typeof PoolFactory.deploy>;
-  const args: DeployArgs = [];
+  const args: DeployArgs = [padLock.getAddress()];
 
   const pool: Pool = (await PoolFactory.connect(deployer).deploy(...args)) as Pool;
   await pool.waitForDeployment();
 
-  return { pool, unlockTime, lockedAmount };
+  return { pool, padLock, unlockTime, lockedAmount };
 }
