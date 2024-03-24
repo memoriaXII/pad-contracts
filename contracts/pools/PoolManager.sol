@@ -1,35 +1,34 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.20;
 
-import {SignatureChecker} from "../utils/SignatureChecker.sol";
-import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import {Presale, Vesting, IPool} from "../interfaces/IPool.sol";
-import {IUniswapV2Pair} from "../interfaces/IUniswapV2Pair.sol";
-import {CurrencyLibrary} from "../libraries/CurrencyLibrary.sol";
+import { SignatureChecker } from "../utils/SignatureChecker.sol";
+import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import { Presale, Vesting, IPool } from "../interfaces/IPool.sol";
+import { IUniswapV2Pair } from "../interfaces/IUniswapV2Pair.sol";
+import { CurrencyLibrary } from "../libraries/CurrencyLibrary.sol";
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
-
- contract PoolManager is SignatureChecker, ReentrancyGuard {
+contract PoolManager is SignatureChecker, ReentrancyGuard {
     using CurrencyLibrary for address;
 
     address private _poolAddress;
     uint256 private _totalCreated;
     mapping(uint256 => address) private _presales;
     mapping(address => address) private _usersPresales;
+
     event PresaleCreated(
-        address presaleAddress,
-        address currency,
-        uint256 amount,
-        uint256 startTime,
-        uint256 endTime
+        address presaleAddress, address currency, uint256 amount, uint256 startTime, uint256 endTime
     );
 
     constructor(
         address _signer,
         address poolAddress
-    ) Ownable(msg.sender) SignatureChecker(_signer) {
+    )
+        Ownable(msg.sender)
+        SignatureChecker(_signer)
+    {
         _poolAddress = poolAddress;
     }
 
@@ -44,12 +43,14 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
         Presale memory newPresale,
         Vesting memory vesting,
         bytes memory signature
-    ) external nonReentrant returns (address) {
+    )
+        external
+        nonReentrant
+        returns (address)
+    {
         require(newPresale.startTime >= block.timestamp);
         require(recover(newPresale, signature), "Incorrect signature");
-        bytes32 salt = keccak256(
-            abi.encodePacked(msg.sender, newPresale.currency)
-        );
+        bytes32 salt = keccak256(abi.encodePacked(msg.sender, newPresale.currency));
         address presaleAddress = Clones.cloneDeterministic(_poolAddress, salt);
         _presales[_totalCreated] = presaleAddress;
         IPool presaleContract = IPool(presaleAddress);
@@ -61,11 +62,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
         if (newPresale.isVesting) {
             presaleContract.setVesting(vesting);
         }
-        newPresale.currency.safeTransferFrom(
-            msg.sender,
-            presaleAddress,
-            totalAmount
-        );
+        newPresale.currency.safeTransferFrom(msg.sender, presaleAddress, totalAmount);
         emit PresaleCreated(
             presaleAddress,
             newPresale.currency,
@@ -86,13 +83,12 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
     }
 
     /**
-     * @notice Returns the address of the presale contract at the specified index in the `_presales` array.
+     * @notice Returns the address of the presale contract at the specified index in the `_presales`
+     * array.
      * @param index The index of the presale contract.
      * @return poolAddress The address of the presale contract.
      */
-    function presales(
-        uint256 index
-    ) external view onlyOwner returns (address poolAddress) {
+    function presales(uint256 index) external view onlyOwner returns (address poolAddress) {
         poolAddress = _presales[index];
     }
 
@@ -100,13 +96,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
      * @notice Returns an array of all presale contract addresses created by the owner.
      * @return poolAddress An array of presale contract addresses.
      */
-    function getAllPresales()
-        external
-        view
-        onlyOwner
-        returns (address[] memory poolAddress)
-    {
-        for (uint256 i = 0; i < _totalCreated; ) {
+    function getAllPresales() external view onlyOwner returns (address[] memory poolAddress) {
+        for (uint256 i = 0; i < _totalCreated;) {
             poolAddress[i] = (_presales[i]);
             unchecked {
                 i++;
@@ -121,9 +112,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
      * @return presaleDatas The presale data of the specified presale contract.
      * @return vestingDatas The vesting data of the specified presale contract.
      */
-    function getPresalesData(
-        IPool poolAddress
-    )
+    function getPresalesData(IPool poolAddress)
         external
         view
         onlyOwner
@@ -141,7 +130,11 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
     function getPoolAddress(
         address poolOwner,
         address currency
-    ) external view returns (address poolAddress) {
+    )
+        external
+        view
+        returns (address poolAddress)
+    {
         bytes32 salt = keccak256(abi.encodePacked(poolOwner, currency));
         poolAddress = Clones.predictDeterministicAddress(_poolAddress, salt);
     }

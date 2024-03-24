@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.20;
-import {CurrencyLibrary} from "../libraries/CurrencyLibrary.sol";
-import {Presale, Vesting, Contributor} from "../interfaces/IPresale.sol";
-import {IRouterV2} from "../interfaces/IRouterV2.sol";
-import {IPadLock} from "../lock/interfaces/IPadLock.sol";
-import {VestingLib} from "../libraries/VestingLib.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+import { CurrencyLibrary } from "../libraries/CurrencyLibrary.sol";
+import { Presale, Vesting, Contributor } from "../interfaces/IPresale.sol";
+import { IRouterV2 } from "../interfaces/IRouterV2.sol";
+import { IPadLock } from "../lock/interfaces/IPadLock.sol";
+import { VestingLib } from "../libraries/VestingLib.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract Pool is ReentrancyGuard {
     using CurrencyLibrary for address;
@@ -35,11 +36,7 @@ contract Pool is ReentrancyGuard {
 
     event Contribute(address contributor, uint256 amount, uint256 timestamp);
     event Claimed(address contributor, uint256 amount, uint256 timestamp);
-    event EmergencyWithdrawal(
-        address contributor,
-        uint256 amount,
-        uint256 timestamp
-    );
+    event EmergencyWithdrawal(address contributor, uint256 amount, uint256 timestamp);
     event Finalized(uint256 timestamp);
     event Cancelled(uint256 timestam);
     event AddedWhitelist(uint256 addresses, uint256 timestamp);
@@ -80,7 +77,8 @@ contract Pool is ReentrancyGuard {
      * @param owner The address of the owner of the contract.
      * @return A boolean value indicating whether the initialization was successful.
      *
-     * Sets the contract `_factory` to the caller of the function and the contract `_owner` to the provided owner address.
+     * Sets the contract `_factory` to the caller of the function and the contract `_owner` to the
+     * provided owner address.
      */
     function initialize(address owner) external isInitialized returns (bool) {
         _factory = msg.sender;
@@ -106,9 +104,7 @@ contract Pool is ReentrancyGuard {
      * @param saleInfo A `Presale` struct containing the presale details.
      * @dev The function can only be called by the factory.
      */
-    function setPresale(
-        Presale memory saleInfo
-    ) external onlyFactory returns (uint256) {
+    function setPresale(Presale memory saleInfo) external onlyFactory returns (uint256) {
         _token = saleInfo.currency;
         _presale = saleInfo;
         uint256 totalTokenAmount = saleInfo.hardcap * saleInfo.presaleRate;
@@ -121,7 +117,8 @@ contract Pool is ReentrancyGuard {
 
     /**
      * @notice Allows for withdrawal of contributed funds if the presale is cancelled.
-     * @dev This function can only be executed if the presale has been cancelled. The function is protected against reentrancy attacks.
+     * @dev This function can only be executed if the presale has been cancelled. The function is
+     * protected against reentrancy attacks.
      */
     function withdraw() external nonReentrant {
         require(_presaleStats.isCancelled, "Presale continues");
@@ -138,10 +135,7 @@ contract Pool is ReentrancyGuard {
      */
     function cancel() external onlyOwner returns (bool) {
         Stats storage presaleStats = _presaleStats;
-        require(
-            !presaleStats.isFinalized && !presaleStats.isCancelled,
-            "Presale is finalized"
-        );
+        require(!presaleStats.isFinalized && !presaleStats.isCancelled, "Presale is finalized");
         presaleStats.isCancelled = true;
         address currency = _token;
         currency.safeTransfer(_owner, presaleStats.totalTokenAmount);
@@ -150,7 +144,8 @@ contract Pool is ReentrancyGuard {
     }
 
     /**
-     * @notice Finalizes the presale based on the defined conditions and distributes the funds accordingly.
+     * @notice Finalizes the presale based on the defined conditions and distributes the funds
+     * accordingly.
      * @dev This function can only be executed by the owner.
      * @return A boolean value indicating whether the operation succeeded.
      */
@@ -160,9 +155,8 @@ contract Pool is ReentrancyGuard {
         Presale memory presale = _presale;
         uint256 totalContributed = _presaleStats.totalContributed;
         require(
-            (presale.softcap < totalContributed &&
-                block.timestamp > presale.endTime) ||
-                presale.hardcap == totalContributed,
+            (presale.softcap < totalContributed && block.timestamp > presale.endTime)
+                || presale.hardcap == totalContributed,
             "Presale is not over yet"
         );
         presaleStats.isFinalized = true;
@@ -172,27 +166,15 @@ contract Pool is ReentrancyGuard {
         uint256 liquidityAmount = totalContributed * presale.listingRate;
         if (presale.autoListing) {
             if (presale.isLock) {
-                _addLiquidityETH(
-                    presale.currency,
-                    address(this),
-                    liquidityAmount,
-                    totalContributed
-                );
+                _addLiquidityETH(presale.currency, address(this), liquidityAmount, totalContributed);
                 _lockLPTokens(presale.currency, presale.lockEndTime);
             } else {
-                _addLiquidityETH(
-                    presale.currency,
-                    msg.sender,
-                    liquidityAmount,
-                    totalContributed
-                );
+                _addLiquidityETH(presale.currency, msg.sender, liquidityAmount, totalContributed);
             }
         } else {
             CurrencyLibrary.safeTransferETH(msg.sender, totalContributed);
         }
-        uint256 refundAmount = presale.hardcap *
-            presale.listingRate -
-            liquidityAmount;
+        uint256 refundAmount = presale.hardcap * presale.listingRate - liquidityAmount;
         _refund(refundAmount, presale.currency, presale.refund);
         emit Finalized(block.timestamp);
         return true;
@@ -203,20 +185,14 @@ contract Pool is ReentrancyGuard {
      * @dev This function can only be executed by the owner.
      * @param whitelistAddresses An array of addresses to be added to the whitelist.
      */
-    function setWhitelist(
-        address[] calldata whitelistAddresses
-    ) external onlyOwner {
-        require(
-            whitelistAddresses.length <= 200,
-            "Maximum 200 addresses can be added"
-        );
+    function setWhitelist(address[] calldata whitelistAddresses) external onlyOwner {
+        require(whitelistAddresses.length <= 200, "Maximum 200 addresses can be added");
         if (!_isWhitelist) {
             _isWhitelist = true;
         }
-        for (uint256 i = 0; i < whitelistAddresses.length; ) {
+        for (uint256 i = 0; i < whitelistAddresses.length;) {
             require(
-                whitelistAddresses[i] != address(0),
-                "Address must not be equal to zero address"
+                whitelistAddresses[i] != address(0), "Address must not be equal to zero address"
             );
             _whitelist[whitelistAddresses[i]] = true;
             unchecked {
@@ -232,18 +208,17 @@ contract Pool is ReentrancyGuard {
      * @param factory The new factory address to be set.
      */
     function changeFactoryAddress(address factory) external onlyFactory {
-        require(
-            factory != address(0),
-            "Factory address does not equal zero address"
-        );
+        require(factory != address(0), "Factory address does not equal zero address");
         _factory = factory;
     }
 
     /**
      * @notice Claims the vested tokens or available tokens for the caller.
-     * @dev If the presale has vesting enabled, it calls the `_vestingClaim` function to claim the vested tokens.
+     * @dev If the presale has vesting enabled, it calls the `_vestingClaim` function to claim the
+     * vested tokens.
      *      Otherwise, it calls the `_claim` function to claim the available tokens.
-     *      If the claim is unsuccessful, it reverts with a `ClaimError` indicating the caller's address.
+     *      If the claim is unsuccessful, it reverts with a `ClaimError` indicating the caller's
+     * address.
      */
     function claim() external {
         bool isClaimed = _presale.isVesting ? _vestingClaim() : _claim();
@@ -256,7 +231,8 @@ contract Pool is ReentrancyGuard {
      * @notice Performs an emergency withdrawal for the caller.
      * @dev Allows a contributor to perform an emergency withdrawal of their contributed funds.
      *      It can only be called before the presale is finalized.
-     *      The contributor's total contribution is deducted from the presale's total contributed amount.
+     *      The contributor's total contribution is deducted from the presale's total contributed
+     * amount.
      *      20% of the total contribution is transferred to the caller as the withdrawal amount.
      *      The remaining 80% is transferred to the caller as a fee.
      *      The contributor's total contribution and claimable amount are set to 0.
@@ -286,8 +262,10 @@ contract Pool is ReentrancyGuard {
      *        - If the presale has a whitelist, the caller must be whitelisted.
      *        - The presale must not be cancelled or finalized.
      *        - The current block timestamp must be within the presale's start and end time.
-     *        - The total contributed amount plus the sent value must not exceed the presale's hardcap.
-     *        - The caller's total contribution plus the sent value must not exceed the presale's max buy limit.
+     *        - The total contributed amount plus the sent value must not exceed the presale's
+     * hardcap.
+     *        - The caller's total contribution plus the sent value must not exceed the presale's
+     * max buy limit.
      *        - The sent value must be greater than or equal to the presale's min buy limit.
      *      If all checks pass, the contribution is recorded:
      *        - The sent value is added to the presale's total contributed amount.
@@ -302,17 +280,15 @@ contract Pool is ReentrancyGuard {
         Presale memory presale = _presale;
         Stats storage presaleStats = _presaleStats;
         require(
-            !presaleStats.isCancelled &&
-                !presaleStats.isFinalized &&
-                block.timestamp >= presale.startTime &&
-                block.timestamp <= presale.endTime,
+            !presaleStats.isCancelled && !presaleStats.isFinalized
+                && block.timestamp >= presale.startTime && block.timestamp <= presale.endTime,
             "The presale is not active at this time."
         );
         require(presaleStats.totalContributed + msg.value <= presale.hardcap);
         Contributor storage contributor = _contributors[msg.sender];
         require(
-            contributor.totalContributed + msg.value <= presale.maxBuy &&
-                msg.value >= presale.minBuy
+            contributor.totalContributed + msg.value <= presale.maxBuy
+                && msg.value >= presale.minBuy
         );
         presaleStats.totalContributed += msg.value;
         _contributors[msg.sender].totalContributed += msg.value;
@@ -326,11 +302,7 @@ contract Pool is ReentrancyGuard {
      * @dev Only the factory address can call this function.
      * @return A tuple containing the presale and vesting information.
      */
-    function getPoolData()
-        public
-        view
-        returns (Presale memory, Vesting memory)
-    {
+    function getPoolData() public view returns (Presale memory, Vesting memory) {
         require(msg.sender == _factory);
         return (_presale, _vesting);
     }
@@ -370,18 +342,15 @@ contract Pool is ReentrancyGuard {
     function _addLiquidityETH(
         address token,
         address to,
-        uint amountTokenDesired,
-        uint amountETH
-    ) private {
+        uint256 amountTokenDesired,
+        uint256 amountETH
+    )
+        private
+    {
         address router = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
         token.safeApprove(router, amountTokenDesired);
-        IRouterV2(router).addLiquidityETH{value: amountETH}(
-            token,
-            amountTokenDesired,
-            0,
-            0,
-            to,
-            block.timestamp
+        IRouterV2(router).addLiquidityETH{ value: amountETH }(
+            token, amountTokenDesired, 0, 0, to, block.timestamp
         );
     }
 
@@ -394,15 +363,11 @@ contract Pool is ReentrancyGuard {
         require(presaleStats.isFinalized, "Presale not finalized yet");
         Contributor storage contributor = _contributors[msg.sender];
         require(
-            contributor.claimable > 0 &&
-                contributor.claimable > contributor.claimed,
+            contributor.claimable > 0 && contributor.claimable > contributor.claimed,
             "Amount must be greater than 0"
         );
         Vesting memory vesting = _vesting;
-        uint256 claimable = VestingLib.calculateClaimableAmount(
-            vesting,
-            contributor
-        );
+        uint256 claimable = VestingLib.calculateClaimableAmount(vesting, contributor);
         require(claimable > 0, "No claimable amount available");
         _token.safeTransfer(msg.sender, claimable);
         emit Claimed(msg.sender, claimable, block.timestamp);
@@ -431,15 +396,10 @@ contract Pool is ReentrancyGuard {
      * @param tokenB Address of token B.
      * @return pair The pair address.
      */
-    function _pairFor(
-        address tokenA,
-        address tokenB
-    ) private pure returns (address pair) {
+    function _pairFor(address tokenA, address tokenB) private pure returns (address pair) {
         require(tokenA != tokenB, "UniswapV2Library: IDENTICAL_ADDRESSES");
         address factory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
-        (address token0, address token1) = tokenA < tokenB
-            ? (tokenA, tokenB)
-            : (tokenB, tokenA);
+        (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), "UniswapV2Library: ZERO_ADDRESS");
         pair = address(
             uint160(
@@ -449,7 +409,8 @@ contract Pool is ReentrancyGuard {
                             hex"ff",
                             factory,
                             keccak256(abi.encodePacked(token0, token1)),
-                            hex"96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f" // init code hash
+                            hex"96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f" // init
+                                // code hash
                         )
                     )
                 )
