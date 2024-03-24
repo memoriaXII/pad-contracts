@@ -6,9 +6,9 @@ import shouldBehaveLikeUnlockTime from "./view/unlockTime";
 
 export function shouldBehaveLikeLockContract(): void {
   describe("View Functions", function () {
-    // describe("#owner", function () {
-    //   shouldBehaveLikeOwner();
-    // });
+    describe("#owner", function () {
+      shouldBehaveLikeOwner();
+    });
     // describe("#unlockTime", function () {
     //   shouldBehaveLikeUnlockTime();
     // });
