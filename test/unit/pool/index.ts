@@ -1,5 +1,5 @@
+import shouldBehaveLikeWithdraw from "./actions/withdraw";
 import { poolFixture } from "./fixtures/pool.fixture";
-
 
 export function Pool(): void {
   describe("Pool", function () {
@@ -16,7 +16,9 @@ export function Pool(): void {
       });
     });
     describe("Action Functions", function () {
-      describe("#constructor", function () {});
+      describe("#constructor", function () {
+        shouldBehaveLikeWithdraw();
+      });
       describe("#liqudiity", function () {
         //shouldBehaveAddLiquidity();
       });
