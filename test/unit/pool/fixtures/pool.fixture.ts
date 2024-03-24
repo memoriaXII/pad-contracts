@@ -7,11 +7,11 @@ import {
   PadLock__factory,
   PoolManager,
   PoolManager__factory,
-} from "../../../types";
-import type { PadLock } from "../../../types/contracts/lock/PadLock";
-import type { Pool } from "../../../types/contracts/pools/Pool";
-import type { Pool__factory } from "../../../types/factories/contracts/pools/Pool__factory";
-import { MockERC20 } from "./../../../types/contracts/mocks/ERC20.sol/MockERC20";
+} from "../../../../types";
+import type { PadLock } from "../../../../types/contracts/lock/PadLock";
+import { MockERC20 } from "../../../../types/contracts/mocks/ERC20.sol/MockERC20";
+import type { Pool } from "../../../../types/contracts/pools/Pool";
+import type { Pool__factory } from "../../../../types/factories/contracts/pools/Pool__factory";
 
 // describe("PoolManager", () => {
 //   const exampleWalletAddress = "0xE1512FB3D7c9bD07FB27D199cC037de5c5F81A31";
