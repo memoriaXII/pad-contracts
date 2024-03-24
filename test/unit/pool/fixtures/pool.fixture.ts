@@ -2,6 +2,8 @@ import type { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers"
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "hardhat";
 
+
+
 import {
   MockERC20__factory,
   PadLock__factory,
@@ -165,8 +167,6 @@ export async function poolFixture(): Promise<{
   pool: Pool;
   padLock: PadLock;
   poolManager: PoolManager;
-  unlockTime: number;
-  lockedAmount: number;
 }> {
   const tokenAmount = ethers.parseEther("100000000000000000");
   const signers = await ethers.getSigners();
@@ -210,5 +210,5 @@ export async function poolFixture(): Promise<{
   const pool: Pool = (await PoolFactory.connect(deployer).deploy(...args)) as Pool;
   await pool.waitForDeployment();
 
-  return { pool, padLock, poolManager, unlockTime, lockedAmount };
+  return { pool, padLock, poolManager };
 }
