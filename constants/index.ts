@@ -29,8 +29,18 @@ export const maxBuy = ethers.parseEther("0.5");
 const liquidityRate = "51";
 export const listingRate = "10";
 const refund = false;
-export const endTime = 1711360090 + 400;
-export const startTime = 1711360090 + 100;
+// Get the current timestamp in seconds
+const currentTimestamp = Math.floor(Date.now() / 1000);
+
+// Set the offsets for startTime and endTime
+const startTimeOffset = 100;
+const endTimeOffset = 400;
+
+// Calculate startTime and endTime using current timestamp and offsets
+export const startTime = currentTimestamp + startTimeOffset;
+export const endTime = currentTimestamp + endTimeOffset;
+// export const endTime = 1711360090 + 400;
+// export const startTime = 1711360090 + 100;
 
 export const domain = {
   name: "EIP712Derive",
