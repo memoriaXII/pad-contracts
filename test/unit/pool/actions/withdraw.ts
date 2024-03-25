@@ -14,8 +14,6 @@ export default function shouldBehaveLikeWithdraw(): void {
   context("withdraw", function () {
     it("Should properly create presale", async function () {
       const snapshot = await hre.network.provider.send("evm_snapshot");
-      const signers = await ethers.getSigners();
-      const deployer: SignerWithAddress = signers[0];
       const domain = {
         name: "EIP712-Derive",
         version: "1",
@@ -23,8 +21,9 @@ export default function shouldBehaveLikeWithdraw(): void {
         verifyingContract: await this.contracts.poolManager.getAddress(),
       };
       const wallet = ethers.Wallet.createRandom();
-      await hre.network.provider.send("hardhat_impersonateAccount", [wallet.address]);
-      const signer = await ethers.getSigner(wallet.address);
+      console.log(await this.contracts.poolManager.owner(), "deployer");
+      const deployer = await this.contracts.poolManager.owner();
+      await hre.network.provider.send("hardhat_impersonateAccount", [deployer]);
       const signature = await wallet.signTypedData(domain, types, {
         ...value,
         currency: await this.contracts.mockERC20.getAddress(),
