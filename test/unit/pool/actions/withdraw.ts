@@ -20,10 +20,14 @@ export default function shouldBehaveLikeWithdraw(): void {
         chainId: 31337, //Hardhat mainnet-fork chain id
         verifyingContract: await this.contracts.poolManager.getAddress(),
       };
-      const wallet = ethers.Wallet.createRandom();
+      //ethers.Wallet.createRandom();
       console.log(await this.contracts.poolManager.owner(), "deployer");
       const deployer = await this.contracts.poolManager.owner();
-      await hre.network.provider.send("hardhat_impersonateAccount", [deployer]);
+      const wallet = await hre.ethers.getSigner(deployer);
+      // const impersonatedSigner = await hre.network.provider.send("hardhat_impersonateAccount", [
+      //   deployer,
+      // ]);
+      console.log(wallet.address, "wallet");
       const signature = await wallet.signTypedData(domain, types, {
         ...value,
         currency: await this.contracts.mockERC20.getAddress(),
