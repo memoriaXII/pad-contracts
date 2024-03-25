@@ -8,6 +8,8 @@ import { IPadLock } from "../lock/interfaces/IPadLock.sol";
 import { VestingLib } from "../libraries/VestingLib.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
+import { Errors } from "contracts/libraries/Errors.sol";
+
 contract Pool is ReentrancyGuard {
     using CurrencyLibrary for address;
 
@@ -45,7 +47,10 @@ contract Pool is ReentrancyGuard {
     error ClaimError(address user);
 
     modifier isInitialized() {
-        require(!_isInit, "Already initialized");
+        if (_isInit) {
+            revert Errors.Pool_AlreadyInitialized();
+        }
+        // require(!_isInit, "Already initialized");
         _;
         _isInit = true;
     }

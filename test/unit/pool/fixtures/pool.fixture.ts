@@ -2,8 +2,6 @@ import type { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers"
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "hardhat";
 
-
-
 import {
   MockERC20__factory,
   PadLock__factory,
@@ -192,8 +190,9 @@ export async function poolFixture(): Promise<{
 
   const poolManager: PoolManager = (await PoolManagerFactory.connect(deployer).deploy(
     deployer.address,
-    padLock.getAddress()
+    await padLock.getAddress()
   )) as PoolManager;
+  // PoolManager = await PoolManagerFactory.deploy(signerAddress, Pool.address);
   await poolManager.waitForDeployment();
 
   //token approval
