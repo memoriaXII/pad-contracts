@@ -13,6 +13,7 @@ types
 docs
 dodoc
 deployments
+constants
 cache_hardhat
 
 # files

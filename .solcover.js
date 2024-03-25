@@ -1,4 +1,4 @@
 module.exports = {
   istanbulReporter: ["html", "lcov"],
-  skipFiles: ["test"],
+  skipFiles: ["test", "constants"],
 };

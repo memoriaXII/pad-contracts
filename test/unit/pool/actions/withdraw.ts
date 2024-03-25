@@ -4,10 +4,10 @@ import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hre, { ethers } from "hardhat";
 
+import { hardcap, listingRate, presaleRate, types, value, vesting } from "../../../../constants";
 import { PoolManager } from "../../../../types";
 import { proxy } from "../../../../types/@openzeppelin/contracts";
 import { Errors } from "../../../shared/errors";
-import { hardcap, listingRate, presaleRate, types, value, vesting } from "../../constants";
 import { Pool } from "./../../../../types/contracts/pools/Pool";
 
 export default function shouldBehaveLikeWithdraw(): void {
