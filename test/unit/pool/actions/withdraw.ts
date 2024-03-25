@@ -35,6 +35,20 @@ export default function shouldBehaveLikeWithdraw(): void {
       const usersTokenAmount = hardcap * BigInt(presaleRate); // Convert presaleRate to a bigint
       const liquidityTokenAmount = hardcap * BigInt(listingRate);
       const totalTokenAmount = usersTokenAmount + liquidityTokenAmount;
+
+      // Create presale
+      await this.contracts.poolManager.createPresale(
+        {
+          ...value,
+          currency: await this.contracts.mockERC20.getAddress(),
+        },
+        vesting,
+        signature
+      );
+      // const proxyAddress = await this.contracts.poolManager.presales(0);
+      // const proxy = await ethers.getContractAt("contracts/pools/Pool.sol:Pool", proxyAddress);
+      // const poolBalance = await this.contracts.mockERC20.balanceOf(proxyAddress);
+      // expect(poolBalance.toString()).to.equal(totalTokenAmount.toString());
     });
   });
 }

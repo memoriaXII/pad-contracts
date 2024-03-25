@@ -48,7 +48,9 @@ contract PoolManager is SignatureChecker, ReentrancyGuard {
         nonReentrant
         returns (address)
     {
-        require(newPresale.startTime >= block.timestamp);
+        require(
+            newPresale.startTime >= block.timestamp, "Start time must be greater than current time"
+        );
         require(recover(newPresale, signature), "Incorrect signature");
         bytes32 salt = keccak256(abi.encodePacked(msg.sender, newPresale.currency));
         address presaleAddress = Clones.cloneDeterministic(_poolAddress, salt);
