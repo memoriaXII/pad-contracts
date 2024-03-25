@@ -1,20 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.20;
 
-import {CurrencyLibrary} from "../libraries/CurrencyLibrary.sol";
-import {LPLib} from "../libraries/LPLib.sol";
-import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-
-
+import { CurrencyLibrary } from "../libraries/CurrencyLibrary.sol";
+import { LPLib } from "../libraries/LPLib.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract PadLock is Ownable2Step {
     using CurrencyLibrary for address;
     using LPLib for address;
 
-    constructor() Ownable(msg.sender) {
+    constructor() Ownable(msg.sender) { }
 
-  }
     struct LockInfo {
         address currency;
         address owner;
@@ -64,7 +61,8 @@ contract PadLock is Ownable2Step {
      * @param _owner The address of the user locking the tokens.
      * @param amount The amount of tokens to be locked.
      * @param endTime The unix timestamp after which the tokens can be unlocked.
-     * @param isLPToken A boolean value indicating whether the locked token is a LP (Liquidity Pool) token.
+     * @param isLPToken A boolean value indicating whether the locked token is a LP (Liquidity Pool)
+     * token.
      * @return A boolean value indicating whether the tokens were locked successfully.
      *
      * Requirements:
@@ -79,16 +77,13 @@ contract PadLock is Ownable2Step {
         uint256 amount,
         uint256 endTime,
         bool isLPToken
-    ) external returns (bool) {
+    )
+        external
+        returns (bool)
+    {
         uint256 ownerBalance = _currency.balanceOf(msg.sender);
-        require(
-            amount <= ownerBalance,
-            "Amount must be greater than owner balance."
-        );
-        require(
-            endTime > block.timestamp,
-            "End time must be greater than block timestamp."
-        );
+        require(amount <= ownerBalance, "Amount must be greater than owner balance.");
+        require(endTime > block.timestamp, "End time must be greater than block timestamp.");
         LockInfo storage _temp = locks[_totalLocked];
         if (isLPToken) {
             address factory = _currency.isLPToken();
@@ -103,13 +98,7 @@ contract PadLock is Ownable2Step {
         _temp.owner = msg.sender;
         _currency.safeTransferFrom(msg.sender, address(this), amount);
         emit LockAdded(
-            _currency,
-            _owner,
-            _temp.factory,
-            amount,
-            block.timestamp,
-            endTime,
-            _totalLocked
+            _currency, _owner, _temp.factory, amount, block.timestamp, endTime, _totalLocked
         );
         _totalLocked++;
         return true;
@@ -134,7 +123,10 @@ contract PadLock is Ownable2Step {
         uint256 lockId,
         uint256 newAmount,
         uint256 newEndTime
-    ) external returns (bool) {
+    )
+        external
+        returns (bool)
+    {
         require(lockId <= _totalLocked);
         LockInfo storage _temp = locks[lockId];
         require(_temp.owner == msg.sender, "You are not owner of pool");
@@ -172,17 +164,15 @@ contract PadLock is Ownable2Step {
      * - The locked amount must be greater than 0.
      * - The end time of the lock must be less than or equal to the current block timestamp.
      *
-     * Emits a {LockUpdated} event with relevant data, and deletes the lock from the `locks` mapping.
+     * Emits a {LockUpdated} event with relevant data, and deletes the lock from the `locks`
+     * mapping.
      */
     function unlockTokens(uint256 lockId) external returns (bool) {
         require(lockId <= _totalLocked);
         LockInfo memory _temp = locks[lockId];
         require(_temp.owner == msg.sender, "You are not owner of pool");
         require(_temp.amount > 0, "You have no locked tokens");
-        require(
-            _temp.endTime <= block.timestamp,
-            "Lock time has not expired yet"
-        );
+        require(_temp.endTime <= block.timestamp, "Lock time has not expired yet");
         _temp.currency.safeTransfer(msg.sender, _temp.amount);
         emit LockUpdated(
             _temp.currency,

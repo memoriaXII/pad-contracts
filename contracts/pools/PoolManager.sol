@@ -10,6 +10,8 @@ import { CurrencyLibrary } from "../libraries/CurrencyLibrary.sol";
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
+import "hardhat/console.sol";
+
 contract PoolManager is SignatureChecker, ReentrancyGuard {
     using CurrencyLibrary for address;
 
