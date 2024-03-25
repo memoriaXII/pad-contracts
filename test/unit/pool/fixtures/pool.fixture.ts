@@ -167,6 +167,7 @@ export async function poolFixture(): Promise<{
   pool: Pool;
   padLock: PadLock;
   poolManager: PoolManager;
+  token: MockERC20;
 }> {
   const tokenAmount = ethers.parseEther("100000000000000000");
   const signers = await ethers.getSigners();
@@ -210,5 +211,5 @@ export async function poolFixture(): Promise<{
   const pool: Pool = (await PoolFactory.connect(deployer).deploy(...args)) as Pool;
   await pool.waitForDeployment();
 
-  return { pool, padLock, poolManager };
+  return { pool, padLock, poolManager, token };
 }

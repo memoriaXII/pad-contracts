@@ -1,6 +1,8 @@
 import type { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
-import { PadLock } from "../../types";
+
+
+import { MockERC20, PadLock } from "../../types";
 import type { Pool } from "../../types/contracts/pools/Pool";
 import { PoolManager } from "./../../types/contracts/pools/PoolManager";
 
@@ -18,6 +20,7 @@ export interface Contracts {
   pool: Pool;
   padLock: PadLock;
   poolManager: PoolManager;
+  mockERC20: MockERC20;
 }
 
 export interface Signers {
