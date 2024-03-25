@@ -13,6 +13,7 @@ import { Pool } from "./../../../../types/contracts/pools/Pool";
 export default function shouldBehaveLikeWithdraw(): void {
   context("withdraw", function () {
     it("Should properly create presale", async function () {
+      const snapshot = await hre.network.provider.send("evm_snapshot");
       const signers = await ethers.getSigners();
       const deployer: SignerWithAddress = signers[0];
       const domain = {

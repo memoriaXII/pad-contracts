@@ -29,8 +29,8 @@ export const maxBuy = ethers.parseEther("0.5");
 const liquidityRate = "51";
 export const listingRate = "10";
 const refund = false;
-export const endTime = 1686894294 + 400;
-export const startTime = 1686894294 + 100;
+export const endTime = 1711360090 + 400;
+export const startTime = 1711360090 + 100;
 
 export const domain = {
   name: "EIP712Derive",
