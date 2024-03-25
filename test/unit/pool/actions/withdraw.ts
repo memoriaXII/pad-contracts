@@ -1,3 +1,4 @@
+import { Pool } from './../../../../types/contracts/pools/Pool';
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import type { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
@@ -6,8 +7,11 @@ import hre, { ethers } from "hardhat";
 
 
 
+import { Pool } from "..";
+import { PoolManager } from "../../../../types";
+import { proxy } from "../../../../types/@openzeppelin/contracts";
 import { Errors } from "../../../shared/errors";
-import { types, value } from "../../constants";
+import { hardcap, listingRate, presaleRate, types, value, vesting } from "../../constants";
 
 export default function shouldBehaveLikeWithdraw(): void {
   context("withdraw", function () {
@@ -25,7 +29,6 @@ export default function shouldBehaveLikeWithdraw(): void {
         chainId: 31337, //Hardhat mainnet-fork chain id
         verifyingContract: await this.contracts.poolManager.getAddress(),
       };
-      // const wallet = new ethers.Wallet(process.env.PRIVATE_KEY as string);
       const wallet = ethers.Wallet.createRandom();
       await hre.network.provider.send("hardhat_impersonateAccount", [wallet.address]);
       const signer = await ethers.getSigner(wallet.address);
@@ -35,20 +38,15 @@ export default function shouldBehaveLikeWithdraw(): void {
         currency: await this.contracts.mockERC20.getAddress(),
       });
       console.log("Signature: ", signature);
-      // await this.contracts.pool
-      //   .connect(deployer)
-      //   .initialize(await this.contracts.poolManager.getAddress());
-      // const usersTokenAmount = hardcap * presaleRate;
-      // const liquidityTokenAmount = hardcap * listingRate;
-      // totalTokenAmount = usersTokenAmount + liquidityTokenAmount;
-      // await expect(Pool.connect(deployers).initialize(PoolManager.address)).to.be.revertedWith(
-      //   "Already initialized"
-      // );
-      // await PoolManager.connect(deployers).createPresale(value, vesting, signature);
-      // const proxyAddress = await PoolManager.connect(deployers).presales(0);
-      // proxy = await ethers.getContractAt("contracts/pools/Pool.sol:Pool", proxyAddress);
-      // const poolBalance = await MockERC20Contract.connect(deployers).balanceOf(proxyAddress);
-      // expect(poolBalance.toString()).to.equal(totalTokenAmount.toString());
+      await this.contracts.pool
+        .connect(deployer)
+        .initialize(await this.contracts.poolManager.getAddress());
+      const usersTokenAmount = hardcap * BigInt(presaleRate); // Convert presaleRate to a bigint
+      const liquidityTokenAmount = hardcap * BigInt(listingRate);
+      const totalTokenAmount = usersTokenAmount + liquidityTokenAmount;
+      await expect(this.contracts.pool.connect(deployer).initialize(await this.contracts.poolManager.getAddress())).to.be.revertedWith(
+        "Already initialized"
+      );
     });
   });
 }
