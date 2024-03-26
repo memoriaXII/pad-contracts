@@ -63,7 +63,6 @@ abstract contract SignatureChecker is Ownable2Step {
         );
         (uint8 v, bytes32 r, bytes32 s) = split(signature);
         address recoveredAddress = ecrecover(digest, v, r, s);
-        console.log("recoveredAddress: %s, _signer: %s", recoveredAddress, _signer);
         bool success = recoveredAddress == _signer;
         return success;
     }

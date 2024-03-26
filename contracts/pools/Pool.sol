@@ -10,6 +10,8 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
 
 import { Errors } from "contracts/libraries/Errors.sol";
 
+import "hardhat/console.sol";
+
 contract Pool is ReentrancyGuard {
     using CurrencyLibrary for address;
 
@@ -50,7 +52,6 @@ contract Pool is ReentrancyGuard {
         if (_isInit) {
             revert Errors.Pool_AlreadyInitialized();
         }
-        // require(!_isInit, "Already initialized");
         _;
         _isInit = true;
     }

@@ -40,16 +40,6 @@ export async function poolFixture(): Promise<{
   const padLock: PadLock = (await PadLockFactory.connect(deployer).deploy()) as PadLock;
   await padLock.waitForDeployment();
 
-  const poolManager: PoolManager = (await PoolManagerFactory.connect(deployer).deploy(
-    deployer.address,
-    await padLock.getAddress()
-  )) as PoolManager;
-  // PoolManager = await PoolManagerFactory.deploy(signerAddress, Pool.address);
-  await poolManager.waitForDeployment();
-
-  //token approval
-  await token.connect(deployer).approve(poolManager.getAddress(), tokenAmount);
-
   const ONE_YEAR_IN_SECS = time.duration.years(1);
   const ONE_GWEI = 1_000_000_000;
 
@@ -61,6 +51,17 @@ export async function poolFixture(): Promise<{
 
   const pool: Pool = (await PoolFactory.connect(deployer).deploy(...args)) as Pool;
   await pool.waitForDeployment();
+
+  console.log("test", await padLock.getAddress());
+  const poolManager: PoolManager = (await PoolManagerFactory.connect(deployer).deploy(
+    deployer.address,
+    await pool.getAddress()
+  )) as PoolManager;
+  // PoolManager = await PoolManagerFactory.deploy(signerAddress, Pool.address);
+  await poolManager.waitForDeployment();
+
+  //token approval
+  await token.connect(deployer).approve(poolManager.getAddress(), tokenAmount);
 
   return { pool, padLock, poolManager, token };
 }
