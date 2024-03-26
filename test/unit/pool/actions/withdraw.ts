@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import hre from "hardhat";
+import hre, { ethers } from "hardhat";
 
 import { hardcap, listingRate, presaleRate, types, value, vesting } from "../../../../constants";
 import { Errors } from "../../../shared/errors";
@@ -41,10 +41,15 @@ export default function shouldBehaveLikeWithdraw(): void {
         vesting,
         signature
       );
-      // const proxyAddress = await this.contracts.poolManager.presales(0);
-      // const proxy = await ethers.getContractAt("contracts/pools/Pool.sol:Pool", proxyAddress);
-      // const poolBalance = await this.contracts.mockERC20.balanceOf(proxyAddress);
-      // expect(poolBalance.toString()).to.equal(totalTokenAmount.toString());
+      const proxyAddress = await this.contracts.poolManager.presales(0);
+      const poolBalance = await this.contracts.mockERC20.balanceOf(proxyAddress);
+      expect(poolBalance.toString()).to.equal(totalTokenAmount.toString());
+      console.log(
+        "poolBalance",
+        poolBalance.toString(),
+        "totalTokenAmount",
+        totalTokenAmount.toString()
+      );
     });
   });
 }
