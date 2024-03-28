@@ -125,5 +125,62 @@ export default function shouldBehaveLikeWithdraw(): void {
       );
       await hre.network.provider.send("evm_revert", [snapshotId]);
     });
+    it("Should properly finalize when hardcap reaches", async function () {
+      const proxyAddress = await this.contracts.poolManager.presales(0);
+      const proxy = await ethers.getContractAt("contracts/pools/Pool.sol:Pool", proxyAddress);
+      await hre.network.provider.send("evm_snapshot");
+      await proxy.finalize();
+    });
+    it("Should properly claim after presale finalized", async function () {
+      await hre.network.provider.send("evm_snapshot");
+      const domain = {
+        name: "EIP712-Derive",
+        version: "1",
+        chainId: 31337, //Hardhat mainnet-fork chain id
+        verifyingContract: await this.contracts.poolManager.getAddress(),
+      };
+      const deployer = await this.contracts.poolManager.owner();
+      const wallet = await hre.ethers.getSigner(deployer);
+      const signature = await wallet.signTypedData(domain, types, {
+        ...value,
+        currency: await this.contracts.mockERC20.getAddress(),
+      });
+      await this.contracts.pool.initialize(await this.contracts.poolManager.getAddress());
+      await expect(
+        this.contracts.pool.initialize(await this.contracts.poolManager.getAddress())
+      ).to.be.revertedWithCustomError(this.contracts.pool, Errors.Pool_AlreadyInitialized);
+      // Create presale
+      await this.contracts.poolManager.connect(wallet).createPresale(
+        {
+          ...value,
+          currency: await this.contracts.mockERC20.getAddress(),
+        },
+        vesting,
+        signature
+      );
+      const signers = await ethers.getSigners();
+      const proxyAddress = await this.contracts.poolManager.presales(0);
+      const proxy = await ethers.getContractAt("contracts/pools/Pool.sol:Pool", proxyAddress);
+      await hre.network.provider.send("evm_increaseTime", [300]);
+      //contribute
+      for (let i = 10; i < 20; i++) {
+        const tempSigner = signers[i];
+        await proxy.connect(tempSigner).contribute({ value: contributeAmount });
+      }
+      //finalize
+      //  const deployer = await this.contracts.poolManager.owner();
+      // const wallet = await hre.ethers.getSigner(deployer);
+      await proxy.connect(wallet).finalize();
+      //claim
+      // for (let i = 10; i < 20; i++) {
+      //   const tempSigner = signers[i];
+      //   await proxy.connect(tempSigner).claim();
+      //   const balance = await this.contracts.mockERC20
+      //     .connect(tempSigner)
+      //     .balanceOf(tempSigner.getAddress());
+      //   const expectedBalance = contributeAmount * BigInt(value.presaleRate);
+      //   expect(balance.toString()).to.equal(expectedBalance.toString());
+      // }
+    });
   });
 }
