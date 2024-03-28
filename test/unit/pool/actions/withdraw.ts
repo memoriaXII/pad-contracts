@@ -2,7 +2,6 @@ import { expect } from "chai";
 import hre, { ethers } from "hardhat";
 
 import { hardcap, listingRate, presaleRate, types, value, vesting } from "../../../../constants";
-import { advanceBlocks } from "../../../../utils/common";
 import { Errors } from "../../../shared/errors";
 
 const contributeAmount = ethers.parseEther("0.5");
@@ -71,7 +70,8 @@ export default function shouldBehaveLikeWithdraw(): void {
       const proxyAddress = await this.contracts.poolManager.presales(0);
       const proxy = await ethers.getContractAt("contracts/pools/Pool.sol:Pool", proxyAddress);
       const [user1] = await ethers.getSigners();
-      await advanceBlocks(1000);
+      await hre.network.provider.send("evm_increaseTime", [900]);
+      await hre.network.provider.send("evm_mine");
       await expect(proxy.connect(user1).contribute({ value: contributeAmount })).to.be.revertedWith(
         "The presale is not active at this time."
       );
@@ -118,7 +118,8 @@ export default function shouldBehaveLikeWithdraw(): void {
       const proxyAddress = await this.contracts.poolManager.presales(0);
       const proxy = await ethers.getContractAt("contracts/pools/Pool.sol:Pool", proxyAddress);
       const [user1] = await ethers.getSigners();
-      await advanceBlocks(1000);
+      await hre.network.provider.send("evm_increaseTime", [900]);
+      await hre.network.provider.send("evm_mine");
       await expect(proxy.connect(user1).contribute({ value: contributeAmount })).to.be.revertedWith(
         "The presale is not active at this time."
       );
