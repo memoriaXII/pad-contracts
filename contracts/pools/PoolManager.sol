@@ -56,7 +56,6 @@ contract PoolManager is SignatureChecker, ReentrancyGuard {
         require(recover(newPresale, signature), "Incorrect signature");
         bytes32 salt = keccak256(abi.encodePacked(msg.sender, newPresale.currency));
         address presaleAddress = Clones.cloneDeterministic(_poolAddress, salt);
-        console.log("Presale Address: %s", presaleAddress, _poolAddress);
         _presales[_totalCreated] = presaleAddress;
         IPool presaleContract = IPool(presaleAddress);
         bool success = presaleContract.initialize(msg.sender);

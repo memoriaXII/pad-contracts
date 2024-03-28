@@ -52,7 +52,6 @@ export async function poolFixture(): Promise<{
   const pool: Pool = (await PoolFactory.connect(deployer).deploy(...args)) as Pool;
   await pool.waitForDeployment();
 
-  console.log("test", await padLock.getAddress());
   const poolManager: PoolManager = (await PoolManagerFactory.connect(deployer).deploy(
     deployer.address,
     await pool.getAddress()
