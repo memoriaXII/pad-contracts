@@ -42,7 +42,7 @@ export default function shouldBehaveLikeWithdraw(): void {
       expect(poolBalance.toString()).to.equal(totalTokenAmount.toString());
     });
     it("Should not contribute before start time", async function () {
-      const snapshot = await hre.network.provider.send("evm_snapshot");
+      await hre.network.provider.send("evm_snapshot");
       const domain = {
         name: "EIP712-Derive",
         version: "1",
@@ -75,6 +75,18 @@ export default function shouldBehaveLikeWithdraw(): void {
       await expect(proxy.connect(user1).contribute({ value: contributeAmount })).to.be.revertedWith(
         "The presale is not active at this time."
       );
+    });
+    it("Should properly contribute", async function () {
+      await hre.network.provider.send("evm_snapshot");
+      const proxyAddress = await this.contracts.poolManager.presales(0);
+      const proxy = await ethers.getContractAt("contracts/pools/Pool.sol:Pool", proxyAddress);
+      await hre.network.provider.send("evm_increaseTime", [300]);
+      await hre.network.provider.send("evm_mine");
+      const signers = await ethers.getSigners();
+      for (let i = 10; i < 20; i++) {
+        const tempSigner = signers[i];
+        await proxy.connect(tempSigner).contribute({ value: contributeAmount });
+      }
     });
   });
 }
