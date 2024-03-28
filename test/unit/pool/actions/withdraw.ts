@@ -88,5 +88,41 @@ export default function shouldBehaveLikeWithdraw(): void {
         await proxy.connect(tempSigner).contribute({ value: contributeAmount });
       }
     });
+    it("Should not contribute after end time", async function () {
+      const snapshotId = await hre.network.provider.send("evm_snapshot");
+      const domain = {
+        name: "EIP712-Derive",
+        version: "1",
+        chainId: 31337, //Hardhat mainnet-fork chain id
+        verifyingContract: await this.contracts.poolManager.getAddress(),
+      };
+      const deployer = await this.contracts.poolManager.owner();
+      const wallet = await hre.ethers.getSigner(deployer);
+      const signature = await wallet.signTypedData(domain, types, {
+        ...value,
+        currency: await this.contracts.mockERC20.getAddress(),
+      });
+      await this.contracts.pool.initialize(await this.contracts.poolManager.getAddress());
+      await expect(
+        this.contracts.pool.initialize(await this.contracts.poolManager.getAddress())
+      ).to.be.revertedWithCustomError(this.contracts.pool, Errors.Pool_AlreadyInitialized);
+      // Create presale
+      await this.contracts.poolManager.connect(wallet).createPresale(
+        {
+          ...value,
+          currency: await this.contracts.mockERC20.getAddress(),
+        },
+        vesting,
+        signature
+      );
+      const proxyAddress = await this.contracts.poolManager.presales(0);
+      const proxy = await ethers.getContractAt("contracts/pools/Pool.sol:Pool", proxyAddress);
+      const [user1] = await ethers.getSigners();
+      await advanceBlocks(1000);
+      await expect(proxy.connect(user1).contribute({ value: contributeAmount })).to.be.revertedWith(
+        "The presale is not active at this time."
+      );
+      await hre.network.provider.send("evm_revert", [snapshotId]);
+    });
   });
 }
