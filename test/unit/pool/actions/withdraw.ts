@@ -2,9 +2,11 @@ import { expect } from "chai";
 import hre, { ethers } from "hardhat";
 
 import { hardcap, listingRate, presaleRate, types, value, vesting } from "../../../../constants";
+import { Pool } from "../../../../types";
 import { Errors } from "../../../shared/errors";
 
 const contributeAmount = ethers.parseEther("0.5");
+
 export default function shouldBehaveLikeCreatePool(): void {
   context("Create Pool", function () {
     it("Should properly create presale", async function () {
@@ -85,7 +87,7 @@ export default function shouldBehaveLikeCreatePool(): void {
     it("Should properly contribute", async function () {
       await hre.network.provider.send("evm_snapshot");
       const proxyAddress = await this.contracts.poolManager.presales(0);
-      const proxy = await ethers.getContractAt("contracts/pools/Pool.sol:Pool", proxyAddress);
+      const proxy: Pool = await ethers.getContractAt("contracts/pools/Pool.sol:Pool", proxyAddress);
       await hre.network.provider.send("evm_increaseTime", [300]);
       await hre.network.provider.send("evm_mine");
       const signers = await ethers.getSigners();
@@ -166,7 +168,7 @@ export default function shouldBehaveLikeCreatePool(): void {
       );
       const signers = await ethers.getSigners();
       const proxyAddress = await this.contracts.poolManager.presales(0);
-      const proxy = await ethers.getContractAt("contracts/pools/Pool.sol:Pool", proxyAddress);
+      const proxy: Pool = await ethers.getContractAt("contracts/pools/Pool.sol:Pool", proxyAddress);
       await hre.network.provider.send("evm_increaseTime", [300]);
       //contribute
       for (let i = 10; i < 20; i++) {
