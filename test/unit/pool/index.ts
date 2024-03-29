@@ -1,6 +1,4 @@
-import { network } from "hardhat";
-
-import shouldBehaveLikeWithdraw from "./actions/withdraw";
+import shouldBehaveLikeCreatePool from "./actions/withdraw";
 import { poolFixture } from "./fixtures/pool.fixture";
 
 export function Pool(): void {
@@ -12,18 +10,12 @@ export function Pool(): void {
       this.contracts.poolManager = poolManager;
       this.contracts.mockERC20 = token;
     });
-    // shouldBehaveLikeLockContract();
     describe("View Functions", function () {
-      describe("# read initial parameters", function () {
-        //shouldReadParameters();
-      });
+      describe("# read initial parameters", function () {});
     });
     describe("Action Functions", function () {
-      describe("#constructor", function () {
-        shouldBehaveLikeWithdraw();
-      });
-      describe("#liqudiity", function () {
-        //shouldBehaveAddLiquidity();
+      describe("#Create Pool", function () {
+        shouldBehaveLikeCreatePool();
       });
     });
   });

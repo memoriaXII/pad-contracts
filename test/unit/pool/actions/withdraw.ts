@@ -5,8 +5,8 @@ import { hardcap, listingRate, presaleRate, types, value, vesting } from "../../
 import { Errors } from "../../../shared/errors";
 
 const contributeAmount = ethers.parseEther("0.5");
-export default function shouldBehaveLikeWithdraw(): void {
-  context("withdraw", function () {
+export default function shouldBehaveLikeCreatePool(): void {
+  context("Create Pool", function () {
     it("Should properly create presale", async function () {
       const domain = {
         name: "EIP712-Derive",
@@ -174,19 +174,17 @@ export default function shouldBehaveLikeWithdraw(): void {
         await proxy.connect(tempSigner).contribute({ value: contributeAmount });
       }
       //finalize
-      //  const deployer = await this.contracts.poolManager.owner();
-      // const wallet = await hre.ethers.getSigner(deployer);
       await proxy.connect(wallet).finalize();
       //claim
-      // for (let i = 10; i < 20; i++) {
-      //   const tempSigner = signers[i];
-      //   await proxy.connect(tempSigner).claim();
-      //   const balance = await this.contracts.mockERC20
-      //     .connect(tempSigner)
-      //     .balanceOf(tempSigner.getAddress());
-      //   const expectedBalance = contributeAmount * BigInt(value.presaleRate);
-      //   expect(balance.toString()).to.equal(expectedBalance.toString());
-      // }
+      for (let i = 10; i < 20; i++) {
+        const tempSigner = signers[i];
+        await proxy.connect(tempSigner).claim();
+        const balance = await this.contracts.mockERC20
+          .connect(tempSigner)
+          .balanceOf(tempSigner.getAddress());
+        const expectedBalance = contributeAmount * BigInt(value.presaleRate);
+        expect(balance.toString()).to.equal(expectedBalance.toString());
+      }
     });
   });
 }
