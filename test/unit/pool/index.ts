@@ -1,4 +1,4 @@
-import shouldBehaveLikeCreatePool from "./actions/withdraw";
+import shouldBehaveLikeCreatePool from "./actions/createPool";
 import { poolFixture } from "./fixtures/pool.fixture";
 
 export function Pool(): void {
