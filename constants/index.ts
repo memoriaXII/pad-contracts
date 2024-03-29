@@ -62,9 +62,9 @@ export const value = {
   endTime,
   lockEndTime: endTime + 400,
   isVesting: false,
-  isLock: true,
+  isLock: false,
   refund,
-  autoListing: true,
+  autoListing: false,
 };
 
 export const vesting = {

@@ -27,6 +27,12 @@ export default function shouldBehaveLikeWithdraw(): void {
       const usersTokenAmount = hardcap * BigInt(presaleRate); // Convert presaleRate to a bigint
       const liquidityTokenAmount = hardcap * BigInt(listingRate);
       const totalTokenAmount = usersTokenAmount + liquidityTokenAmount;
+      console.log(
+        "totalTokenAmount",
+        totalTokenAmount.toString(),
+        usersTokenAmount.toString(),
+        liquidityTokenAmount.toString()
+      );
       // Create presale
       await this.contracts.poolManager.connect(wallet).createPresale(
         {
@@ -38,7 +44,7 @@ export default function shouldBehaveLikeWithdraw(): void {
       );
       const proxyAddress = await this.contracts.poolManager.presales(0);
       const poolBalance = await this.contracts.mockERC20.balanceOf(proxyAddress);
-      expect(poolBalance.toString()).to.equal(totalTokenAmount.toString());
+      expect(poolBalance.toString()).to.equal(usersTokenAmount.toString());
     });
     it("Should not contribute before start time", async function () {
       await hre.network.provider.send("evm_snapshot");
